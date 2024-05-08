@@ -1,0 +1,15 @@
+{
+  "name": "scraperemotecompanies",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {},
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@types/node": "^20.12.10",
+    "puppeteer": "^22.8.0",
+    "typescript": "^5.4.5"
+  }
+}
