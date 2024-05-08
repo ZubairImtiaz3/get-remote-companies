@@ -1,8 +1,10 @@
 {
   "name": "scraperemotecompanies",
   "version": "1.0.0",
-  "main": "index.js",
-  "scripts": {},
+  "main": "index.ts",
+  "scripts": {
+    "start": "ts-node index.ts"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -10,6 +12,7 @@
   "devDependencies": {
     "@types/node": "^20.12.10",
     "puppeteer": "^22.8.0",
-    "typescript": "^5.4.5"
+    "typescript": "^5.4.5",
+    "ts-node": "^10.9.2"
   }
 }
