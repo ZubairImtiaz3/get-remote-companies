@@ -5,6 +5,7 @@ async function scrapeData() {
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
 
+    // Navigating to the job search page
     await page.goto(
         "https://jobgether.com/search-offers?locations=622a65ad671f2c8b98fac69b",
         { waitUntil: "networkidle2" }
@@ -16,6 +17,7 @@ async function scrapeData() {
     async function scrapePage() {
         await page.waitForSelector(".new-opportunity.cards_container");
 
+        // Targeting job cards
         const cards = await page.$$(".new-opportunity.cards_container");
 
         for (const card of cards) {
@@ -46,15 +48,18 @@ async function scrapeData() {
                 ).toLowerCase()
                 : "";
 
+            // If all data is present and remote is Pakistan, add to scrapedData
             if (title && company && remote && remote === "pakistan") {
                 scrapedData.push({ title, company, remote });
                 uniqueCompanies.add(company);
             }
         }
+        console.log(`Number of unique companies: ${uniqueCompanies.size}`);
 
         const companiesArray = Array.from(uniqueCompanies);
         fs.writeFileSync("companies.json", JSON.stringify(companiesArray));
 
+        // Clicking 'See More' button if available and scrape more cards
         const seeMoreButton = await page.$('a[href*="/search-offers/"]');
         if (seeMoreButton) {
             await seeMoreButton.click();
@@ -63,6 +68,7 @@ async function scrapeData() {
         }
     }
 
+    // Initiating scraping
     await scrapePage();
     await browser.close();
 }
