@@ -14,6 +14,13 @@ async function scrapeData() {
     let scrapedData: { title: string; company: string; remote: string }[] = [];
     let uniqueCompanies: Set<string> = new Set();
 
+    // Check if companies.json already exists
+    let existingCompanies = [];
+    if (fs.existsSync("companies.json")) {
+        existingCompanies = JSON.parse(fs.readFileSync("companies.json"));
+        uniqueCompanies = new Set(existingCompanies);
+    }
+
     async function scrapePage() {
         await page.waitForSelector(".new-opportunity.cards_container");
 
@@ -56,8 +63,8 @@ async function scrapeData() {
         }
         console.log(`Number of unique companies: ${uniqueCompanies.size}`);
 
-        const companiesArray = Array.from(uniqueCompanies);
-        fs.writeFileSync("companies.json", JSON.stringify(companiesArray));
+        // Write unique companies to companies.json
+        fs.writeFileSync("companies.json", JSON.stringify(Array.from(uniqueCompanies)));
 
         // Clicking 'See More' button if available and scrape more cards
         const seeMoreButton = await page.$('a[href*="/search-offers/"]');
