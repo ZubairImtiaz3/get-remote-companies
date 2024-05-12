@@ -11,7 +11,8 @@ async function scrapeData() {
         { waitUntil: "networkidle2" }
     );
 
-    let scrapedData: { title: string; company: string; remote: string }[] = [];
+    let scrapedData: { title: string; company: string; remote: string; companyDescription: string | undefined; numberOfEmployees: string | undefined; companyLink: string | null | undefined; }[] = [];
+
     let uniqueCompanies: Set<string> = new Set();
 
     // Check if companies.json already exists
@@ -57,11 +58,33 @@ async function scrapeData() {
 
             // If all data is present and remote is Pakistan, add to scrapedData
             if (title && company && remote && remote === "pakistan") {
-                scrapedData.push({ title, company, remote });
+
+                const linkElement = await card.$('a[href*="/offer/"]');
+                const href = await linkElement?.evaluate((el) => el.getAttribute('href'));
+
+                // Constructing the complete link
+                const completeLink = `https://jobgether.com${href}`;
+
+                // Opening a new tab and visiting the complete link
+                const newPage = await browser.newPage();
+                await newPage.goto(completeLink, { waitUntil: 'networkidle2' });
+
+                // Targeting card with classes 'company_data_container' and 'info_card_shadow'
+                const companyCard = await newPage.$('.company_data_container.info_card_shadow');
+
+                // Extracting company description, number of employees, and company link
+                const companyDescription = await companyCard?.$eval('.fs-14.ff-primary.position-relative.fw-300.text-uppercase', el => el.textContent?.trim());
+
+                const numberOfEmployees = await companyCard?.$eval('.ms-1.me-1', el => el.textContent?.trim());
+
+                const companyLink = await companyCard?.$eval('.company_link', el => el.getAttribute('href'));
+
+                scrapedData.push({ title, company, remote, companyDescription, numberOfEmployees, companyLink });
                 uniqueCompanies.add(company);
             }
         }
         console.log(`Number of unique companies: ${uniqueCompanies.size}`);
+        console.log(scrapedData);
 
         // Write unique companies to companies.json
         fs.writeFileSync("companies.json", JSON.stringify(Array.from(uniqueCompanies)));
